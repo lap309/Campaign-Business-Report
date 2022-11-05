@@ -1,0 +1,127 @@
+# 1. Testing for significant difference in means of successful and failed projects
+
+select * from campaign where name is null;
+select * from campaign where sub_category_id is null;
+select * from campaign where goal is null;
+select * from campaign where backers is null;
+
+select distinct(outcome) from campaign;
+
+# find dollar goal mean for all outcomes
+Select outcome, round(avg(goal), 2) from campaign
+group by outcome;
+
+Select outcome as failed, round(avg(goal),2) as avg_dollar from campaign
+where outcome in ('failed', 'canceled','suspended', 'undefined');
+
+select outcome as success, round(avg(goal), 2) as avg_dollar from campaign
+where outcome in ('successful', 'live');
+
+# 2. Top 3 categories and subcategories with the most pledges/donors
+
+select * from campaign limit 5;
+Select * from category;
+Select * from sub_category;
+
+# Merges all 3 tables together
+
+select cat.name as category, count(camp.backers) as backers
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by category
+order by backers desc
+limit 3;
+
+select subc.name as subcategory, count(camp.backers) as backers
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by subcategory
+order by backers desc
+limit 3;
+
+# 2. Bottom 3 categories and subcategories with the least pledges/donors
+
+select cat.name as category, count(camp.backers) as backers
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by category
+order by backers
+limit 3;
+
+select subc.name as subcategory, count(camp.backers) as backers
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by subcategory
+order by backers
+limit 3;
+
+# 3. Top 3 categories and subcategories that have raised the most money
+
+select cat.name as category, count(camp.pledged) as money_raised
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by category
+order by money_raised desc
+limit 3;
+
+select subc.name as subcategory, count(camp.pledged) as money_raised
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by subcategory
+order by money_raised desc
+limit 3;
+
+# 3. Bottom 3 categories and subcategories that have raised the least amount of money
+
+select subc.name as subcategory, round(sum(camp.pledged), 2) as money_raised
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by subcategory
+order by money_raised
+limit 3;
+
+select cat.name as category, round(sum(camp.pledged), 2) as money_raised
+from sub_category subc
+left join category cat on subc.category_id=cat.id
+left join campaign camp on subc.id = camp.sub_category_id
+group by category
+order by money_raised
+limit 3;
+
+
+# 4. Amount of money raised from the most successful board game at the company. how many donors did they have?
+select max(pledged), name, backers from campaign;
+
+# 5. Top 3 countries with the most successful campaigns in terms of total dollars pledged, and in terms of the number of campaigns backed
+# Sorts the country by amount of money raised
+select country.name, round(sum(camp.pledged),2) as money_raised
+from campaign camp
+left join country on camp.country_id=country.id
+group by country.name
+order by money_raised desc
+limit 3;
+
+# Sorts the country by amount of successful campaigns
+select country.name, count(outcome) as successful_campaigns
+from campaign camp
+left join country on camp.country_id=country.id
+where camp.outcome = 'successful'
+group by country.name
+order by successful_campaigns desc;
+
+# Counts the number of pledged projects each country has
+select country.name, count(outcome) as pledged_projects
+from campaign camp
+left join country on camp.country_id=country.id
+where camp.backers != 0
+group by country.name
+order by pledged_projects desc;
+
+# 6. Do longer or shorter campaigns tend to raise more money? Why?
