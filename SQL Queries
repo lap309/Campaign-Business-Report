@@ -98,12 +98,22 @@ left join category cat on subc.id = cat.id
 where subc.name='Tabletop Games') as temp2
 where outcome in ('failed', 'canceled','suspended');
 
-##Does goal amount affect the number of donors?
-select goal, count(backers)
+##Does goal amount affect the number of donors? Board Games
+select goal, floor(avg(backers)) as avg_backer
 from (select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
 left join sub_category subc on camp.sub_category_id = subc.id
 left join category cat on subc.id = cat.id
 where (subc.name ='Tabletop Games') and camp.outcome!='live' ) as temp1
+group by goal
+order by goal;
+
+
+##Does goal amount affect the number of donors? ALL GAMES
+select goal, floor(avg(backers)) as avg_backer
+from (select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where ((cat.name like '%game%') or (subc.name like '%game%'))and camp.outcome!='live') as temp1
 group by goal
 order by goal;
 
@@ -116,17 +126,19 @@ left join sub_category subc on camp.sub_category_id = subc.id
 left join category cat on subc.id = cat.id
 where (subc.name ='Tabletop Games') and camp.outcome!='live') as temp1;
 
-##Correlation Coefficient for campaign length and backers >> results -.04
-select (avg(days * backers) - avg(days) * avg(backers)) / 
-        (sqrt(avg(days * days) - avg(days) * avg(days)) * sqrt(avg(backers * backers) - avg(backers) * avg(backers)))
-        as corr_coef
-from (select datediff(deadline,launched) as days, camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+
+##Taking days of fundraising into consideration for ALL GAMING campaigns
+select datediff(deadline, launched) as days, round(avg(goal), 2) as avg_goal, round(avg(pledged), 2) as avg_pledged, floor(avg(backers)) as avg_backers
+from 
+(select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
 left join sub_category subc on camp.sub_category_id = subc.id
 left join category cat on subc.id = cat.id
-where (subc.name ='Tabletop Games') and camp.outcome!='live') as temp1;
+where ((cat.name like '%game%') or (subc.name like '%game%'))and camp.outcome!='live') as temp1
+group by days
+order by days;
 
 
-##Taking days of fundraising into consideration for all successful GAMING campaigns
+##Taking days of fundraising into consideration for all SUCCESSFUL GAMING campaigns
 select datediff(deadline, launched) as days, round(avg(goal), 2) as avg_goal, round(avg(pledged), 2) as avg_pledged, floor(avg(backers)) as avg_backers
 from 
 (select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
@@ -136,6 +148,17 @@ where ((cat.name like '%game%') or (subc.name like '%game%'))and camp.outcome!='
 where outcome = 'successful'
 group by days
 order by days;
+
+##Taking days of fundraising into consideration for ALL TABLETOP Games
+select datediff(deadline, launched) as days, round(avg(goal), 2) as avg_goal, round(avg(pledged), 2) as avg_pledged, floor(avg(backers)) as avg_backers
+from 
+(select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where (subc.name = 'Tabletop Games') and camp.outcome!='live') as temp1
+group by days
+order by days;
+
 
 ##Taking days of fundraising into consideration for all successful TABLETOP Games
 select datediff(deadline, launched) as days, round(avg(goal), 2) as avg_goal, round(avg(pledged), 2) as avg_pledged, floor(avg(backers)) as avg_backers
@@ -147,6 +170,40 @@ where (subc.name = 'Tabletop Games') and camp.outcome!='live') as temp1
 where outcome = 'successful'
 group by days
 order by days;
+
+##Correlation Coefficient for campaign length and backers >> results -.04
+select (avg(days * backers) - avg(days) * avg(backers)) / 
+        (sqrt(avg(days * days) - avg(days) * avg(days)) * sqrt(avg(backers * backers) - avg(backers) * avg(backers)))
+        as corr_coef
+from (select datediff(deadline,launched) as days, camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where (subc.name ='Tabletop Games') and camp.outcome!='live') as temp1;
+
+##Correlation Coefficient for campaign length and pledge amount >> results -.04
+select (avg(days * backers) - avg(days) * avg(backers)) / 
+        (sqrt(avg(days * days) - avg(days) * avg(days)) * sqrt(avg(backers * backers) - avg(backers) * avg(backers)))
+        as corr_coef
+from (select datediff(deadline,launched) as days, camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where (subc.name ='Tabletop Games') and camp.outcome!='live') as temp1;
+
+# Average campaign length for successful Tabletop games
+select outcome, avg(days)
+from (select datediff(deadline,launched) as days, camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where (subc.name ='Tabletop Games')) as temp1
+group by outcome;
+
+# Average campaign length for all Games
+select outcome, avg(days)
+from (select datediff(deadline,launched) as days, camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where ((cat.name like '%game%') or (subc.name like '%game%')))as temp1
+group by outcome;
 
 # 2. Top 3 categories and subcategories with the most pledges/donors
 
