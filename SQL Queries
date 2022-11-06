@@ -78,6 +78,30 @@ where outcome = 'successful'
 group by days
 order by days;
 
+##Budget for Board Games Specifically
+select round(avg(goal), 2) as avg_goal, round(avg(pledged), 2) as avg_pledged,floor(avg(backers)) as avg_backers
+from 
+(select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where (subc.name ='Tabletop Games') and outcome!='living') as temp1;
+
+# Table top Gaming Campaigns: descriptive stats for failed and successful campaigns
+select outcome as Gaming_outcome, count(outcome),(100*count(outcome))/1298 as count_percentage, min(goal) as min_goal, round(avg(goal),2) as avg_goal, max(goal) as max_goal, round(avg(pledged),2) as avg_pledged, floor(avg(backers)) as avg_backers from
+(select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where subc.name='Tabletop Games') as temp1
+where outcome = 'successful'
+group by outcome
+union
+select outcome, count(outcome), (100*count(outcome))/1298 as count_percentage, min(goal) as min_goal, round(avg(goal),2) as avg_goal, max(goal) as max_goal, round(avg(pledged),2) as avg_pledged, floor(avg(backers)) as avg_backers
+from (select camp.name, camp.launched, camp.deadline, camp.goal, camp.pledged, camp.backers, camp.outcome, subc.name as sub_cat, cat.name as category from campaign camp
+left join sub_category subc on camp.sub_category_id = subc.id
+left join category cat on subc.id = cat.id
+where subc.name='Tabletop Games') as temp2
+where outcome in ('failed', 'canceled','suspended');
+
 # 2. Top 3 categories and subcategories with the most pledges/donors
 
 select * from campaign limit 5;
