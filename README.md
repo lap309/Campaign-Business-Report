@@ -1,8 +1,7 @@
 # Campaign-Business-Report
 Kickstarter is the world's largest funding platform for creative projects, operating through the “crowdfunding” model. The company was founded in 2009 and has been the jump-start for products such as:
 
-“Exploding Kittens” card game
-“Oculus” (Oculus rift)
+
 Crowdfunding
 Crowdfunding works by raising small amounts of money from a large number of people to gain capital for a project.
 It is considered a form of alternative finance, and is often done via the internet.
@@ -27,3 +26,11 @@ goal: desired amount of funding
 pledged: how much was promised by the backer (whether or not the goal was reached)
 backers: how many individuals contributed to the campaign?
 outcome: was the project funded or not?
+
+
+Business Brief:
+"We are the executive team of a small board game company and we need your help setting up our first Kickstarter campaign. The team has decided that we will need a minimum of $15,000 USD to get this project off the ground. We have ambitions of expanding the business and would like to maximize our funding for this campaign.
+
+We want your data-driven recommendations on the following three questions: What is a realistic Kickstarter campaign goal (in dollars) should the company aim to raise?
+How many backers will be needed to meet their goal?
+How many backers can the company realistically expect, based on trends in their category?
